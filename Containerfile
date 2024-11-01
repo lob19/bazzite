@@ -234,12 +234,12 @@ RUN --mount=type=cache,dst=/var/cache/rpm-ostree \
     --mount=type=bind,from=kernel,src=/tmp/rpms,dst=/tmp/kernel-rpms \
     rpm-ostree cliwrap install-to-root / && \
     echo "Will install ${KERNEL_FLAVOR} kernel" && \
-    rpm-ostree override replace \
-    --experimental \
-        /tmp/kernel-rpms/kernel-[0-9]*.rpm \
-        /tmp/kernel-rpms/kernel-core-*.rpm \
-        /tmp/kernel-rpms/kernel-modules-*.rpm \
-        /tmp/kernel-rpms/kernel-uki-virt-*.rpm && \
+    # rpm-ostree override replace \
+    # --experimental \
+    #     /tmp/kernel-rpms/kernel-[0-9]*.rpm \
+    #     /tmp/kernel-rpms/kernel-core-*.rpm \
+    #     /tmp/kernel-rpms/kernel-modules-*.rpm \
+    #     /tmp/kernel-rpms/kernel-uki-virt-*.rpm && \
     rpm-ostree install \
         scx-scheds && \
     /usr/libexec/containerbuild/cleanup.sh && \
