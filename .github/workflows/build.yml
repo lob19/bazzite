@@ -30,8 +30,8 @@ jobs:
           - fedora_version: 41
             is_latest_version: true
             is_stable_version: true
-            kernel_flavor: fsync # must match a kernel_flavor from akmods repo
-            kernel_version: fsync-40-6.11.4-201.fsync.fc40.x86_64 # must match a cached version of the above flavor
+            kernel_flavor: main # must match a kernel_flavor from akmods repo
+            kernel_version: 6.11.5-300.fc41.x86_64 # must match a cached version of the above flavor
         exclude:
           - base_name: bazzite
             target_nvidia_flavor: nvidia
