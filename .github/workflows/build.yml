@@ -1,7 +1,7 @@
 name: Build Bazzite
 on: workflow_dispatch
 env:
-  IMAGE_REGISTRY: ghcr.io/ublueos
+  IMAGE_REGISTRY: ghcr.io/ublue-os
   PUSH_REGISTRY: ghcr.io/lob19
 
 concurrency:
