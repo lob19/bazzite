@@ -1,47 +1,8 @@
 name: Build Bazzite
-on:
-  schedule:
-    - cron: "40 4 * * 1" # 4:40 utc monday
-  pull_request:
-    branches:
-      - testing
-      - unstable
-    paths-ignore:
-      - "**.md"
-      - "**.txt"
-      - "installer/**"
-      - "repo_content/**"
-      - "spec_files/**"
-      - "post_install_files/**"
-      - "press_kit/**"
-      - "docs/**"
-      - ".github/workflows/build_iso.yml"
-  push:
-    branches:
-      - testing
-      - unstable
-    paths-ignore:
-      - "**.md"
-      - "**.txt"
-      - "repo_content/**"
-      - "spec_files/**"
-      - "post_install_files/**"
-      - "press_kit/**"
-      - ".github/workflows/build_iso.yml"
-  merge_group:
-  workflow_dispatch:
-    inputs:
-      handwritten:
-        description: 'Small changelog:'
-      # Run with this periodically to analyze the image again
-      # As package drift will make the plan eventually non-ideal
-      # (existing users will have to redownload most of the image)
-      fresh-rechunk:
-        description: 'Clear rechunk history'
-        type: boolean
-        default: false
+on: workflow_dispatch
 env:
-  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+  IMAGE_REGISTRY: ghcr.io/ublueos
+  PUSH_REGISTRY: ghcr.io/lob19
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -60,17 +21,17 @@ jobs:
       fail-fast: false
       matrix:
         base_image_flavor: [main]
-        base_name: [bazzite, bazzite-deck, bazzite-nvidia]
-        base_image_name: [kinoite, silverblue]
-        target_image_flavor: [main, asus]
-        target_nvidia_flavor: [nvidia, nvidia-open]
+        base_name: [bazzite-deck]
+        base_image_name: [kinoite]
+        target_image_flavor: [main]
+        target_nvidia_flavor: [nvidia]
         fedora_version: [41]
         include:
           - fedora_version: 41
             is_latest_version: true
             is_stable_version: true
-            kernel_flavor: bazzite # must match a kernel_flavor from akmods repo
-            kernel_version: 6.11.5-307.bazzite.fc41.x86_64 # must match a cached version of the above flavor
+            kernel_flavor: fsync # must match a kernel_flavor from akmods repo
+            kernel_version: fsync-40-6.11.4-201.fsync.fc40.x86_64 # must match a cached version of the above flavor
         exclude:
           - base_name: bazzite
             target_nvidia_flavor: nvidia
@@ -388,7 +349,7 @@ jobs:
         id: registry_case
         uses: ASzc/change-string-case-action@v6
         with:
-          string: ${{ env.IMAGE_REGISTRY }}
+          string: ${{ env.PUSH_REGISTRY }}
 
       # Push the image to GHCR (Image Registry)
       - name: Push To GHCR
@@ -424,19 +385,3 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "${{ toJSON(steps.push.outputs) }}"
-
-  generate_release:
-    name: Generate Release
-    needs: [push-ghcr]
-    if: github.event_name != 'pull_request'
-    secrets: inherit
-    uses: ./.github/workflows/generate_release.yml
-
-  build_iso:
-    name: Build ISO
-    needs: [push-ghcr]
-    if: github.ref_name == 'testing'
-    # Eventually would be nice for building images in PRs
-    #if: ${{ endsWith(github.event.pull_request.title, '[ISO]') }}
-    uses: ./.github/workflows/build_iso.yml
-    secrets: inherit
